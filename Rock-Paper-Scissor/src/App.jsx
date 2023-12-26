@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Room from "./pages/Room";
 import background_img from "/background.jpg";
 import "./App.css";
 
@@ -16,6 +17,7 @@ function App() {
         <div className="container">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/room" element={<Room />} />
           </Routes>
         </div>
       </main>

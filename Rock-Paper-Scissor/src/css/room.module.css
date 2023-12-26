@@ -1,0 +1,104 @@
+.room {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: linear-gradient(90deg, yellow, red);
+}
+
+.hr {
+  width: 5px;
+  background-color: black;
+  border: 0px solid black;
+}
+
+.left,
+.right {
+  width: 48%;
+  margin: 0 3em;
+}
+
+/* Control Options */
+.controls_div {
+  position: absolute;
+  top: 80%;
+  left: 35%;
+}
+
+.scissor_button,
+.rock_button,
+.paper_button {
+  margin: 0 0.8em;
+  padding: 0.5em 0.7em;
+  width: 8.5em;
+  height: 8em;
+  border: 1px solid black;
+  border-radius: 10%;
+}
+
+.scissor_button:hover,
+.rock_button:hover,
+.paper_button:hover {
+  border: 3px solid black;
+  box-shadow: 0 0 20px black inset;
+  box-shadow: 0 0 20px black;
+  /* filter: drop-shadow(10px 10px 1px black);*/
+}
+
+.scissor_button {
+  background: center / contain no-repeat url("/Scissor.png") rgb(4, 0, 2);
+}
+.paper_button {
+  background: center / contain no-repeat url("/Paper.png") rgb(0, 0, 0);
+}
+.rock_button {
+  background: center / contain no-repeat url("/Rock.png") rgb(16, 9, 0);
+}
+
+/* Top Profile */
+.topProfile {
+  margin: 0.5em 1em;
+  width: 100%;
+}
+
+.profile,
+.profileR {
+  padding: 0.2em;
+  margin: 0 0.2em 0 0;
+  font-size: 3.5em;
+  border: 5px solid black;
+  border-radius: 10%;
+}
+
+.star,
+starR {
+  font-size: 2em;
+}
+
+.profileR {
+  position: relative;
+  left: 83%;
+}
+
+.starR {
+  position: relative;
+  left: 48%;
+  font-size: 2em;
+}
+
+/* Control Image */
+.control,
+.controlR {
+  width: auto;
+  height: 70%;
+}
+
+.control {
+  transform: rotate(90deg) translateY(-125px);
+  filter: drop-shadow(20px 20px 10px black);
+}
+
+.controlR {
+  transform: rotate(270deg) translateY(250px);
+  filter: drop-shadow(-20px -20px 10px black);
+}

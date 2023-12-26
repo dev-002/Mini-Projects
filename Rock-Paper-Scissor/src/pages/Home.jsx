@@ -21,11 +21,7 @@ const Home = () => {
             type="button"
             style={styles.button}
           />
-          <Button
-            name={"Play with Friend"}
-            type="button"
-            style={styles.button}
-          />
+          <Button name={"Play with Friend"} type="button" />
         </div>
       </div>
     </>
