@@ -3,7 +3,7 @@
   width: 100%;
   display: flex;
   justify-content: space-around;
-  background: linear-gradient(90deg, yellow, red);
+  background: linear-gradient(90deg, rgba(249, 249, 43, 0.998), rgb(154, 2, 2));
 }
 
 .hr {
@@ -22,7 +22,7 @@
 .controls_div {
   position: absolute;
   top: 80%;
-  left: 35%;
+  left: 33%;
 }
 
 .scissor_button,
@@ -71,18 +71,18 @@
 }
 
 .star,
-starR {
+.starR {
   font-size: 2em;
 }
 
 .profileR {
   position: relative;
-  left: 83%;
+  left: 80%;
 }
 
 .starR {
   position: relative;
-  left: 48%;
+  left: 39%;
   font-size: 2em;
 }
 
@@ -99,6 +99,6 @@ starR {
 }
 
 .controlR {
-  transform: rotate(270deg) translateY(250px);
+  transform: rotate(270deg) translateY(175px);
   filter: drop-shadow(-20px -20px 10px black);
 }
