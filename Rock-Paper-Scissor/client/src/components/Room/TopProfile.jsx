@@ -1,24 +1,29 @@
 import React from "react";
 import style from "../../css/room.module.css";
+import { Container } from "react-bootstrap";
 
-const TopProfile = ({ right }) => {
+const TopProfile = ({ right, points }) => {
   return (
-    <div className={style.topProfile}>
+    <Container className="w-100" style={{ margin: "0.5em 1em" }}>
       <i
         className={
           (right ? style.profileR : style.profile) + " fa-solid fa-user"
         }
       ></i>
-      <i
-        className={(right ? style.starR : style.star) + " fa-solid fa-star"}
-      ></i>
-      <i
-        className={(right ? style.starR : style.star) + " fa-regular fa-star"}
-      ></i>
-      <i
-        className={(right ? style.starR : style.star) + " fa-regular fa-star"}
-      ></i>
-    </div>
+      {Array.from({ length: points }, (_, index) => (
+        <i
+          key={index}
+          className={(right ? style.starR : style.star) + " fa-solid fa-star"}
+        ></i>
+      ))}
+
+      {Array.from({ length: 3 - points }, (_, index) => (
+        <i
+          key={index}
+          className={(right ? style.starR : style.star) + " fa-regular fa-star"}
+        ></i>
+      ))}
+    </Container>
   );
 };
 

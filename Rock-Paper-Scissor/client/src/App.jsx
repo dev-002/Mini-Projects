@@ -17,7 +17,7 @@ function App() {
       />
 
       <Container
-        className="position-absolute d-flex overflow-hidden"
+        className="position-absolute d-flex overflow-hidden p-0"
         style={{
           height: "80vh",
           width: "80%",

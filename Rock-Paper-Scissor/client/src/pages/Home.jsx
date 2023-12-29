@@ -16,6 +16,9 @@ const Home = () => {
 
   function joinARoom(e) {
     e.preventDefault();
+    navigate("/room", {
+      state: { room: "join", id: roomIdRef.current.value },
+    });
   }
 
   return (
@@ -58,10 +61,12 @@ const Home = () => {
           }}
         />
 
+        {/* Button Container */}
         <div
           className="w-max h-100 pb-5 pe-3 position-relative d-flex align-items-end flex-column justify-content-end"
           style={{ zIndex: "2" }}
         >
+          {/* Join Random Room Button */}
           <Button
             className="d-block my-3 fw-bold text-white fs-3 p-3 border-5 border-white"
             onClick={() => handleClick("join")}
@@ -73,6 +78,8 @@ const Home = () => {
           >
             Play with Stranger
           </Button>
+
+          {/* Create a Room Button */}
           <Button
             className="d-block my-3 fw-bold text-white fs-3 p-3 border-5 border-white"
             onClick={() => handleClick("create")}
@@ -84,10 +91,14 @@ const Home = () => {
           >
             Create a Room
           </Button>
+
+          {/* Join a Room Form */}
           <Form className="my-3" onSubmit={joinARoom}>
             <Form.Group className="d-flex">
               <Form.Control
                 type="text"
+                minLength={6}
+                maxLength={6}
                 className="fs-5 rounded-0 rounded-start me-0"
                 ref={roomIdRef}
                 placeholder="RoomID"
