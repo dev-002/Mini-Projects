@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { Container } from "react-bootstrap";
 
-import makeRoomId from "../utility/makeRoomId";
-
-import ControlContainer from "../components/Room/ButtonContainer";
-import TopProfile from "../components/Room/TopProfile";
+import ControlContainer from "../components/ButtonContainer";
+import TopProfile from "../components/TopProfile";
+import PlayerWait from "../components/PlayerWait";
+import WinnerCard from "../components/WinnerCard";
+import LoserCard from "../components/LoserCard";
 
 const Room = () => {
   const location = useLocation();
@@ -22,10 +23,15 @@ const Room = () => {
   const [playerControl, setPlayerControl] = useState(null);
   const [oppositeControl, setOppositeControl] = useState(null);
   const [points, setPoints] = useState(0);
+  const [winner, setWinner] = useState(null);
+  const [gameEnd, setGameEnd] = useState(false);
+  const [controlAccess, setControlAccess] = useState(false);
 
   const handlePlayerControl = (e) => {
     setPlayerControl(e.target.name);
-    socket.current.emit("game-move", { roomID, move: e.target.name });
+    // Emit the move event to the server
+    setControlAccess(true);
+    socket.current.emit("game-move", { roomId: roomID, move: e.target.name });
   };
 
   function setMethod(id, player1, player2) {
@@ -43,14 +49,6 @@ const Room = () => {
   }
 
   useEffect(() => {
-    if (roomId) {
-      setRoomId(roomId);
-    } else {
-      const id = makeRoomId();
-      setRoomId(id);
-      roomId = id;
-    }
-
     const newSocket = io("http://localhost:5000");
     socket.current = newSocket;
 
@@ -58,28 +56,69 @@ const Room = () => {
     newSocket.emit(`${roomType}-room`, { roomId });
 
     // Create Room
-    newSocket.on("room-created", () => {
-      setPlayerWait(true);
+    newSocket.on("room-created", ({ roomId }) => {
+      setRoomId(roomId);
       console.log("Room Created");
     });
 
     // Socket listeners
-    newSocket.on("start-game", () => {
+    newSocket.on("start-game", ({ roomId }) => {
+      console.log(roomId);
+      setRoomId(roomId);
       setPlayerWait(false);
       console.log("Game Started");
     });
 
-    newSocket.on("game-round", ({ players: [player1, player2] }) => {
-      console.log("Player", player1, player2);
-      setMethod(socket.id, player1, player2);
-
-      newSocket.emit("game-round-end", { roomID });
+    newSocket.on("room-full", () => {
+      navigate = useNavigate();
+      navigate("/", { state: { roomFull: true } });
     });
+
+    newSocket.on(
+      "game-round",
+      ({
+        room: {
+          players: [player1, player2],
+        },
+        winner,
+      }) => {
+        console.log("Player", player1, player2);
+        setMethod(newSocket.id, player1, player2);
+
+        console.log("Winner", winner, newSocket.id);
+        if (newSocket.id == player1.id) {
+          setPoints(player1.point);
+        } else {
+          setPoints(player2.point);
+        }
+        if (winner == newSocket.id) {
+          setWinner(true);
+        } else {
+          setWinner(false);
+        }
+
+        if (points === 3) {
+          setTimeout(() => {
+            newSocket.emit("game-end", { roomId: roomID });
+            setControlAccess(true);
+            setGameEnd(true);
+            navigator("/");
+          }, 5000);
+        } else {
+          setTimeout(() => {
+            setControlAccess(false);
+            setOppositeControl(null);
+            setPlayerControl(null);
+          }, 3000);
+        }
+      }
+    );
 
     newSocket.on("round-complete", ({ room }) => {
-      setMethod(socket.id, ...room.players);
+      setMethod(newSocket.id, ...room.players);
     });
 
+    newSocket.on("");
     // To close the prev Connection on every new reload
     return () => newSocket.close();
   }, [roomType]);
@@ -91,8 +130,19 @@ const Room = () => {
         style={{ zIndex: "3" }}
       >
         Room Id: {roomID}
+        <br />
+        {winner !== null ? (
+          winner ? (
+            <WinnerCard gameEnd={gameEnd} />
+          ) : (
+            <LoserCard gameEnd={gameEnd} />
+          )
+        ) : (
+          ""
+        )}
       </div>
       <Container className="h-100 w-100 d-flex justify-around">
+        {/* Left Side */}
         <div className="w-100 my-0 mx-3">
           <TopProfile right={false} points={points} />
 
@@ -112,6 +162,7 @@ const Room = () => {
           )}
         </div>
 
+        {/* V/S Line */}
         <hr
           className="h-100 border-3 border-black bg-black"
           style={{ zIndex: "1" }}
@@ -119,24 +170,33 @@ const Room = () => {
 
         {/* Right Side */}
         <div className="w-100 my-0 mx-1">
-          <TopProfile right={true} />
-
-          {oppositeControl ? (
-            <img
-              src={`/${oppositeControl}.png`}
-              alt="Control Hand"
-              className="w-auto"
-              style={{
-                height: "70%",
-                transform: "rotate(270deg) translateY(200px)",
-                filter: "drop-shadow(-20px -20px 10px black)",
-              }}
-            />
+          {playerWait ? (
+            <PlayerWait />
           ) : (
-            <div></div>
+            <>
+              <TopProfile right={true} />
+
+              {oppositeControl ? (
+                <img
+                  src={`/${oppositeControl}.png`}
+                  alt="Control Hand"
+                  className="w-auto"
+                  style={{
+                    height: "70%",
+                    transform: "rotate(270deg) translateY(200px)",
+                    filter: "drop-shadow(-20px -20px 10px black)",
+                  }}
+                />
+              ) : (
+                <div></div>
+              )}
+            </>
           )}
         </div>
-        <ControlContainer handleControl={handlePlayerControl} />
+        <ControlContainer
+          handleControl={handlePlayerControl}
+          controlAccess={controlAccess}
+        />
       </Container>
     </>
   );

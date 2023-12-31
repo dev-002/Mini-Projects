@@ -1,5 +1,5 @@
 import React from "react";
-import style from "../../css/room.module.css";
+import style from "../css/room.module.css";
 import { Container } from "react-bootstrap";
 
 const TopProfile = ({ right, points }) => {

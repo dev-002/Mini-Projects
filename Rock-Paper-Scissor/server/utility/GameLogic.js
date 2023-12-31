@@ -1,12 +1,13 @@
 module.exports.GameLogic = ([player1, player2]) => {
+  console.log(player1, player2);
   const player1Win = Logic(
     player1.move[player1.move - 1],
     player2.move[player2.move - 1]
   );
 
   if (player1Win) {
-    return player1.id;
-  } else return player2.id;
+    return player2.id;
+  } else return player1.id;
 };
 
 // Scissor < Rock

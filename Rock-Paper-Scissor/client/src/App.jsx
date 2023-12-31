@@ -13,7 +13,10 @@ function App() {
         src={background_img}
         alt="Background Image"
         className="position-absolute h-100 w-100"
-        style={{ zIndex: "-1", backgroundSize: "contain" }}
+        style={{
+          zIndex: "-1",
+          backgroundSize: "contain",
+        }}
       />
 
       <Container

@@ -15,6 +15,7 @@ const io = new Server(server, {
 
 // custom function
 const { GameLogic } = require("./utility/GameLogic");
+const makeRoomId = require("./utility/MakeRoomId");
 // Room Data
 const exportRoom = require("./data/Room");
 
@@ -23,39 +24,42 @@ io.on("connection", (socket) => {
 
   // Create Room
   socket.on("create-room", ({ roomId }) => {
-    // // To get a unique id
-    // let roomId = makeRoomId();
+    // To get a unique id
+    if (!roomId) {
+      roomId = makeRoomId();
+    }
     // while (exportRoom.id.includes(roomId)) {
     //   roomId = makeRoomId();
     // }
-    // exportRoom.id.push(roomId);
+    exportRoom.id.push(roomId);
+    roomId = String(roomId);
 
-    // roomID = String(roomID);
-    console.log(roomId);
-
-    console.log("Create Room Id: ", roomId, typeof roomId);
     socket.join(roomId);
     exportRoom.data.push({
       id: roomId,
       vacant: true,
       players: [{ id: socket.id, move: [], point: 0 }],
     });
-    socket.emit("room-created");
+
+    console.log("Room Data-Room Creation: ", exportRoom.data);
+    socket.emit("room-created", { roomId });
   });
 
   // Join Room with Code
-  socket.on("join-room", ({ roomID }) => {
-    console.log("join room");
-    const room = exportRoom.data.find((room) => room.id === roomID);
+  socket.on("join-room", ({ roomId }) => {
+    const room = exportRoom.data.find((room) => room.id === roomId);
     if (room && room.vacant) {
       room.vacant = false;
+      room.players.push({ id: socket.id, move: [], point: 0 });
+      socket.join(roomId);
+
+      console.log(roomId);
+      io.to(roomId).emit("start-game", { roomId });
+    } else {
+      // By default the socket joins default room by id name
+      // We can send the message that room is full
+      io.to(socket.id).emit("room-full");
     }
-
-    room.players.push({ id: socket.id, move: [], point: 0 });
-    socket.join(roomID);
-
-    console.log("Join Room: ", roomID, typeof roomID);
-    io.to(roomID).emit("start-game");
   });
 
   // Join Random Room
@@ -64,33 +68,35 @@ io.on("connection", (socket) => {
   });
 
   // Game Events
-  socket.on("game-move", ({ roomID, move }) => {
-    const room = exportRoom.data.find((r) => r.id == roomID);
+  socket.on("game-move", ({ roomId, move }) => {
+    const room = exportRoom.data.find((r) => r.id == roomId);
     room.players.forEach((player) => {
       if (player.id == socket.id) {
         player.move.push(move);
       }
     });
-    console.log(room);
+
+    // to check if there are 2 player in room
     if (
-      // to check if there are 2 player in room
       // room.players.length == 2 &&
       !room.vacant &&
       room.players[0].move.length == room.players[1].move.length
     ) {
-      io.to(roomID).emit("game-round", room);
+      const winner = GameLogic(room.players);
+      room.players.map((player) => {
+        if (player.id == winner) player.point++;
+      });
+      io.to(roomId).emit("game-round", { room, winner });
     }
   });
 
-  socket.on("game-round-end", ({ roomID }) => {
-    console.log(roomID);
-    const room = exportRoom.data.find((r) => (r.id = roomID));
-    const winner = GameLogic(room.players);
-    room.players.map((player) => {
-      if (player.id == winner) player.point++;
+  socket.on("game-end", ({ roomId }) => {
+    exportRoom.data.filter((room) => {
+      if (room.id !== roomId) return room;
     });
-    io.to(roomID).emit("round-complete", { room });
+    exportRoom.id.filter((id) => id !== roomId);
   });
+
   socket.on("disconnect", () => console.log("Connection Disconnected"));
 });
 
